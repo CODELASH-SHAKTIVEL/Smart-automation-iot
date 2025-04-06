@@ -1,0 +1,8 @@
+{
+    "sensor_type": "DHT11",
+    "sensor_gpio": 4,                
+    "server_url": "http://<YOUR_SERVER_IP>:5000/api/data",
+    "read_interval": 60            
+  }
+  
+
