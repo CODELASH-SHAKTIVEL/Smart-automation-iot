@@ -6,18 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 
 export default function Settings() {
   const [pollingInterval, setPollingInterval] = useState(5);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const { toast } = useToast();
 
   const handleSave = () => {
-    toast({
-      title: "Settings saved",
-      description: "Your preferences have been updated successfully.",
-    });
+    console.log("Settings saved:", { pollingInterval, isDarkMode });
   };
 
   return (
