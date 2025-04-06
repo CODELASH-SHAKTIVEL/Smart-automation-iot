@@ -53,7 +53,7 @@ export default function HeroSection() {
                                 </div>
 
                                 <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit lg:border-l lg:pl-6">
-                                    <Button asChild size="sm">
+                                    <Button asChild variant="outline" size="sm">
                                         <Link href="#">
                                             <span>Login</span>
                                         </Link>
@@ -78,18 +78,18 @@ export default function HeroSection() {
                                 </Link>
 
                                 <h1 className="mt-8 text-4xl font-semibold md:text-5xl xl:text-5xl xl:[line-height:1.125]">
-                                Master the Metrics. <br /> Monitor the Moment.
+                                    Tame the Wild West <br /> of Frontend Development
                                 </h1>
-                                <p className="mx-auto mt-8 hidden max-w-2xl text-wrap text-lg sm:block">🌡️ "Monitor Temperature. Track Humidity. Control Your Expenses."</p>
+                                <p className="mx-auto mt-8 hidden max-w-2xl text-wrap text-lg sm:block">Tailwindcss highly customizable components for building modern websites and applications that look and feel the way you mean it.</p>
                                 <p className="mx-auto mt-6 max-w-2xl text-wrap sm:hidden">Highly customizable components for building modern websites and applications, with your personal spark.</p>
 
                                 <div className="mt-8">
-                                   <Button size="lg" asChild>
-                                     <Link href="/dashboard/sensor-stats">
-                                        <Rocket className="relative size-4" />
-                                          <span className="text-nowrap">Start Building</span>
-                                       </Link>
-                                     </Button>
+                                    <Button size="lg" asChild>
+                                        <Link href="#">
+                                            <Rocket className="relative size-4" />
+                                            <span className="text-nowrap">Start Building</span>
+                                        </Link>
+                                    </Button>
                                 </div>
                             </div>
                             <div className="x-auto relative mx-auto mt-8 max-w-lg sm:mt-12">

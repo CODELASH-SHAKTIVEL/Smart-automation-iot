@@ -12,7 +12,7 @@ export default function ExpenseTracker() {
   const [monthlyLimit, setMonthlyLimit] = useState(300);
   const [rate, setRate] = useState(0.12);
   
-  // Mock calculations
+
   const dailyUsage = 15; // kWh
   const projectedExpense = dailyUsage * rate * 30;
   const remainingBudget = monthlyLimit - projectedExpense;

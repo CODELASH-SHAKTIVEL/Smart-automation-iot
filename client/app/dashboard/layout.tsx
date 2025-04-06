@@ -19,7 +19,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Mobile Menu Button */}
+      
       <button
         className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-primary text-primary-foreground rounded-md"
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -27,7 +27,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <Menu size={24} />
       </button>
 
-      {/* Sidebar */}
+     
       <aside
         className={cn(
           "fixed left-0 top-0 z-40 h-screen w-64 transform bg-card transition-transform duration-200 ease-in-out lg:translate-x-0",
@@ -36,7 +36,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       >
         <div className="flex h-full flex-col border-r">
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-primary">IoT Dashboard</h2>
+            <h2 className="text-2xl font-bold text-primary">NodePulse</h2>
           </div>
           <nav className="flex-1 space-y-1 p-4">
             {sidebarItems.map((item) => {
@@ -61,7 +61,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className={cn(
         "min-h-screen transition-all duration-200 ease-in-out",
         isSidebarOpen ? "lg:pl-64" : "lg:pl-0"
