@@ -3,13 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Thermometer, History, DollarSign, Settings, Menu } from 'lucide-react';
+import { Thermometer, History, DollarSign, Settings, Menu , Sliders } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const sidebarItems = [
   { icon: Thermometer, label: 'Sensor Stats', href: '/dashboard/sensor-stats' },
   { icon: History, label: 'Historical Data', href: '/dashboard/historical-data' },
-  { icon: DollarSign, label: 'Expense Tracker', href: '/dashboard/expense-tracker' },
+  { icon: DollarSign, label: 'Expense Tracker', href: '/dashboard/expense-tracker'},
+  { icon: Sliders , label: 'Custom Rules', href: '/dashboard/custom-rules'},
   { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
 ];
 
