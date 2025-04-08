@@ -8,6 +8,10 @@
   --background-end-rgb: 255, 255, 255;
 }
 
+.font-geist {
+  font-family: var(--font-geist-sans), var(--font-geist-mono);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
