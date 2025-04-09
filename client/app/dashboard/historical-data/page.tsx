@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Tabs,
   TabsContent,
@@ -16,7 +16,9 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Label,
 } from 'recharts';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 
 const temperatureData = [
   { time: '0:00', value: 21 },
@@ -72,6 +74,13 @@ const humidityData = [
   { time: '23:00', value: 54 },
 ];
 
+const chartConfig = {
+  desktop: {
+    label: "Desktop",
+    color: "hsl(var(--chart-1))",
+  },
+} satisfies ChartConfig
+
 export default function HistoricalData() {
   const [activeTab, setActiveTab] = useState<'temperature' | 'humidity'>('temperature');
   const chartData = activeTab === 'temperature' ? temperatureData : humidityData;
@@ -95,19 +104,53 @@ export default function HistoricalData() {
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="time" />
-                <YAxis />
+                <YAxis dataKey="value" />
                 <Tooltip />
                 <Line
                   type="monotone"
                   dataKey="value"
                   stroke="hsl(var(--primary))"
                   strokeWidth={2}
+                  dot={false}
                 />
               </LineChart>
             </ResponsiveContainer>
           </TabsContent>
         </Tabs>
+        <CardContent>
+          <ChartContainer config={chartConfig}>
+            <LineChart
+              accessibilityLayer
+              data={chartData}
+              margin={{
+                left: 12,
+                right: 12,
+              }}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="month"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(value) => value.slice(0, 3)}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Line
+                dataKey="value"
+                type="linear"
+                stroke="rgb(128, 128, 128)"
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
+          </ChartContainer>
+        </CardContent>
       </Card>
     </div>
   );
 }
+
