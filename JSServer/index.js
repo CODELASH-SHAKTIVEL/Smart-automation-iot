@@ -36,29 +36,29 @@ app.get("/", (req, res) => {
 });
 
 // Fetch sensor data from the Flask API and save to MongoDB
-const fetchSensorData = async () => {
-  try {
-    // Make request to Flask API (replace with actual IP and port)
-    const res = await axios.get('http://<YOUR_PI_IP>:5000/sensor');  // Replace with your PI IP
+// const fetchSensorData = async () => {
+//   try {
+//     // Make request to Flask API (replace with actual IP and port)
+//     const res = await axios.get('http://<YOUR_PI_IP>:5000/sensor');  // Replace with your PI IP
 
-    const { temperature, humidity, created_at } = res.data;
+//     const { temperature, humidity, created_at } = res.data;
 
-    // Save sensor data to MongoDB
-    const sensorEntry = new SensorData({
-      temperature,
-      humidity,
-      createdAt: new Date(created_at)
-    });
+//     // Save sensor data to MongoDB
+//     const sensorEntry = new SensorData({
+//       temperature,
+//       humidity,
+//       createdAt: new Date(created_at)
+//     });
 
-    await sensorEntry.save();  // Save to database
-    console.log('Sensor data saved:', sensorEntry);
-  } catch (err) {
-    console.error('Error fetching sensor data:', err.message);
-  }
-};
+//     await sensorEntry.save();  // Save to database
+//     console.log('Sensor data saved:', sensorEntry);
+//   } catch (err) {
+//     console.error('Error fetching sensor data:', err.message);
+//   }
+// };
 
-// Fetch data from the Flask API every 2 seconds
-setInterval(fetchSensorData, 2000);
+// // Fetch data from the Flask API every 2 seconds
+// setInterval(fetchSensorData, 2000);
 
 // Start the server
 app.listen(PORT, () => {
