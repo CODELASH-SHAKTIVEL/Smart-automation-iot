@@ -1,7 +1,7 @@
 import { Router } from 'express';
 const router = Router();
-import { getAllSensorData } from '../controllers/sensorController';
+import { fetchAndStoreSensorData } from '../services/fetchSensor.js';
 
-router.get('/sensor-data', getAllSensorData);
+router.get('/sensor-data', fetchAndStoreSensorData);
 
 export default router;

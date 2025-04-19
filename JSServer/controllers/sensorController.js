@@ -1,4 +1,4 @@
-import { find } from '../models/SensorData';
+import { find } from '../models/SensorData.js';
 
 const getAllSensorData = async (req, res) => {
   try {
