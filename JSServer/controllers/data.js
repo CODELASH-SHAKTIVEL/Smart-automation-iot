@@ -1,9 +1,7 @@
-import { Request, Response } from "express";
-
 // Temporary memory use karna hai for now 
-let sensorLogs: { temperature: number; humidity: number; timestamp: string }[] = [];
+let sensorLogs = []; // Array of { temperature, humidity, timestamp }
 
-export const receiveSensorData = (req: Request, res: Response) => {
+export const receiveSensorData = (req, res) => {
   const { temperature, humidity } = req.body;
 
   if (typeof temperature !== "number" || typeof humidity !== "number") {
@@ -24,7 +22,7 @@ export const receiveSensorData = (req: Request, res: Response) => {
   res.status(200).json({ message: "Data received successfully" });
 };
 
-// Optional helper function hai[ to fetch recent logs ]
-export const getSensorLogs = (_req: Request, res: Response) => {
+// Optional helper function hai [to fetch recent logs]
+export const getSensorLogs = (_req, res) => {
   res.status(200).json(sensorLogs.slice(-50)); // return last 50 logs
 };
