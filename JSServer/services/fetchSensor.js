@@ -3,7 +3,7 @@ import SensorData from '../models/SensorData';
 
 const fetchAndStoreSensorData = async () => {
   try {
-    const res = await get('http://<YOUR_PI_IP>:5000/sensor');
+    const res = await get('http://192.168.116.95:5000/sensor');
     const { temperature, humidity, created_at } = res.data;
 
     const sensorEntry = new SensorData({
@@ -19,4 +19,6 @@ const fetchAndStoreSensorData = async () => {
   }
 };
 
-export default fetchAndStoreSensorData;
+export {
+  fetchAndStoreSensorData
+};
