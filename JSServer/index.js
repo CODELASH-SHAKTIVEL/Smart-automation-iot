@@ -32,7 +32,7 @@ app.get("/", (req, res) => {
 
 // Fetch sensor data from the Flask API and save to MongoDB
 
-// setInterval(() => fetchAndSaveSensorData({ }, { status: () => ({ json: () => {} }) }), 2000);
+setInterval(() => fetchAndSaveSensorData({ }, { status: () => ({ json: () => {} }) }), 2000);
 
 // Start the server
 app.listen(process.env.PORT, async () => {

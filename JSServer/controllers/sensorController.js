@@ -4,7 +4,7 @@ import SensorData from '../models/SensorData.js';
 
 export const fetchAndSaveSensorData = async (req, res) => {
   try {
-    const response = await fetch('http://192.168.116.95:5000/sensor');
+    const response = await fetch('http://192.168.39.95:5000/sensor');
     // console.log("fetched successfully:");
     if (response.ok) {
       // throw new Error(`HTTP error! Status: ${response.status}`);
