@@ -1,7 +1,8 @@
-import { Router } from 'express';
-const router = Router();
-import { fetchAndStoreSensorData } from '../services/fetchSensor.js';
+import express from 'express';
+import { fetchAndSaveSensorData } from '../controllers/sensorController.js';
 
-router.get('/sensor-data', fetchAndStoreSensorData);
+const router = express.Router();
+
+router.get('/fetch-sensor', fetchAndSaveSensorData); // GET route to trigger data fetch
 
 export default router;
