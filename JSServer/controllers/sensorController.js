@@ -1,10 +1,20 @@
 import axios from 'axios';
+import fetch from 'node-fetch';
 import SensorData from '../models/SensorData.js';
 
 export const fetchAndSaveSensorData = async (req, res) => {
   try {
-    const response = await axios.get('http://192.168.116.95:5000/sensor'); // Replace with actual Raspberry Pi IP
-    const { temperature, humidity, created_at } = response.data;
+    const response = await fetch('http://192.168.116.95:5000/sensor');
+    // console.log("fetched successfully:");
+    if (response.ok) {
+      // throw new Error(`HTTP error! Status: ${response.status}`);
+      console.log("success");
+      
+    }
+     // Replace with actual Raspberry Pi IP
+    // const { temperature, humidity, created_at } = response.data;
+    const data = await response.json();
+    const { temperature, humidity, created_at } = data;
 
     const sensorEntry = new SensorData({
       temperature,
