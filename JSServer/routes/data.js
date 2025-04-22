@@ -1,9 +1,9 @@
-import express from 'express';
-import { receiveSensorData, getSensorLogs } from '../controllers/data.js';
+import express from "express";
+import { getAllSensorData } from "../controller/dataController.js";
 
 const router = express.Router();
 
-router.post('/sensor-data', receiveSensorData);
-router.get('/sensor-logs', getSensorLogs);
+// Route to get all sensor data
+router.get("/", getAllSensorData);
 
 export default router;
