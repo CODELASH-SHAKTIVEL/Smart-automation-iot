@@ -6,9 +6,6 @@ import dataRoutes from "./routes/data.js";  // Existing routes for data
 import billRoutes from './routes/ask_ai.js';  // Existing routes for AI
 import ConnectDB from "./db/index.js";
 import { fetchAndSaveSensorData } from './controllers/sensorController.js';
-
-// MongoDB model for sensor data
-import SensorData from './models/SensorData.js';
 import sensorRouter from "./routes/sensorRoute.js";
 
 dotenv.config();
@@ -21,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());  // Replaces body-parser
 
 // Routes
-app.use("/api/data", dataRoutes);  // Your existing data routes
+app.use("/", dataRoutes);  // Your existing data routes
 app.use("/", billRoutes);  // Your existing AI routes
 app.use("/", sensorRouter)
 
