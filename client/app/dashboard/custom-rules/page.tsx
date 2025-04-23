@@ -24,7 +24,7 @@ export default function CustomRules() {
     if (appliance && email && (temperatureThreshold || humidityThreshold)) {
       const newRule = { appliance, temperatureThreshold, humidityThreshold, email };
       try {
-        const response = await fetch('http://localhost:5000/api/rules/add-rule', {
+        const response = await fetch('http://localhost:5000/add-rule', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
