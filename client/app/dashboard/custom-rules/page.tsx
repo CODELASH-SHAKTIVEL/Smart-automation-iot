@@ -1,4 +1,4 @@
-'use client'; 
+'use client';
 
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
@@ -6,46 +6,75 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
-
-// Define the interface for the rule
 interface Rule {
-  applianceName: string;
+  appliance: string;
   temperatureThreshold: string;
   humidityThreshold: string;
+  email: string;
 }
 
 export default function CustomRules() {
-  const [applianceName, setApplianceName] = useState('');
+  const [appliance, setAppliance] = useState('');
   const [temperatureThreshold, setTemperatureThreshold] = useState('');
   const [humidityThreshold, setHumidityThreshold] = useState('');
-  
-  // Specify the type of rules as an array of Rule
+  const [email, setEmail] = useState('');
   const [rules, setRules] = useState<Rule[]>([]);
 
-  const handleAddRule = () => {
-    if (applianceName && (temperatureThreshold || humidityThreshold)) {
-      setRules([...rules, { applianceName, temperatureThreshold, humidityThreshold }]);
-      setApplianceName('');
-      setTemperatureThreshold('');
-      setHumidityThreshold('');
+  const handleAddRule = async () => {
+    if (appliance && email && (temperatureThreshold || humidityThreshold)) {
+      const newRule = { appliance, temperatureThreshold, humidityThreshold, email };
+      try {
+        const response = await fetch('http://localhost:5000/api/rules/add-rule', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newRule),
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+          setRules([...rules, newRule]);
+          setAppliance('');
+          setTemperatureThreshold('');
+          setHumidityThreshold('');
+          setEmail('');
+        } else {
+          alert(result.error || "Failed to add rule");
+        }
+      } catch (error) {
+        console.error("Error adding rule:", error);
+        alert("Error adding rule");
+      }
+    } else {
+      alert("Please fill appliance, email, and at least one threshold");
     }
   };
 
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Custom Rules for Appliances</h1>
-      
+
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="p-6 space-y-4">
           <h2 className="text-xl font-semibold">Add Appliance and Rules</h2>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="applianceName">Appliance Name</Label>
+              <Label htmlFor="appliance">Appliance Name</Label>
               <Input
-                id="applianceName"
+                id="appliance"
                 type="text"
-                value={applianceName}
-                onChange={(e) => setApplianceName(e.target.value)}
+                value={appliance}
+                onChange={(e) => setAppliance(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="space-y-2">
@@ -78,12 +107,13 @@ export default function CustomRules() {
             ) : (
               rules.map((rule, index) => (
                 <div key={index} className="border-b py-2">
-                  <p className="font-bold">{rule.applianceName}</p>
+                  <p className="font-bold">{rule.appliance}</p>
+                  <p>Email: {rule.email}</p>
                   {rule.temperatureThreshold && (
-                    <p>Notify to turn on if temperature {rule.temperatureThreshold}°C</p>
+                    <p>Notify if temperature ≥ {rule.temperatureThreshold}°C</p>
                   )}
                   {rule.humidityThreshold && (
-                    <p>Notify to turn on if humidity {rule.humidityThreshold}%</p>
+                    <p>Notify if humidity ≥ {rule.humidityThreshold}%</p>
                   )}
                 </div>
               ))
@@ -91,6 +121,6 @@ export default function CustomRules() {
           </div>
         </Card>
       </div>
-      </div>
-       );
-    }
+    </div>
+  );
+}
