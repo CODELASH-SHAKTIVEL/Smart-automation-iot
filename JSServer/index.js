@@ -7,6 +7,7 @@ import billRoutes from './routes/ask_ai.js';  // Existing routes for AI
 import ConnectDB from "./db/index.js";
 import { fetchAndSaveSensorData } from './controllers/sensorController.js';
 import sensorRouter from "./routes/sensorRoute.js";
+import ruleRouter from "./routes/ruleRoute.js"
 
 dotenv.config();
 
@@ -20,7 +21,8 @@ app.use(express.json());  // Replaces body-parser
 // Routes
 app.use("/", dataRoutes);  // Your existing data routes
 app.use("/", billRoutes);  // Your existing AI routes
-app.use("/", sensorRouter)
+app.use("/", sensorRouter);
+app.use("/", ruleRouter);
 
 // Route to check if the API is running
 app.get("/", (req, res) => {
