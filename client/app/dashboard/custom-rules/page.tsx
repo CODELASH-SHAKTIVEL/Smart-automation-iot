@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,9 @@ interface Rule {
   temperatureThreshold: string;
   humidityThreshold: string;
   email: string;
+  _id: string;
+  notified: boolean;
+  createdAt: string;
 }
 
 export default function CustomRules() {
@@ -34,7 +37,7 @@ export default function CustomRules() {
 
         const result = await response.json();
         if (response.ok) {
-          setRules([...rules, newRule]);
+          setRules((prevRules) => [...prevRules, result]);  // Assuming the result contains the new rule
           setAppliance('');
           setTemperatureThreshold('');
           setHumidityThreshold('');
@@ -50,6 +53,24 @@ export default function CustomRules() {
       alert("Please fill appliance, email, and at least one threshold");
     }
   };
+
+  useEffect(() => {
+    const fetchRules = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/get-rules');
+        const data = await response.json();
+        if (response.ok) {
+          setRules(data); // No need for data.rules if the response is an array
+        } else {
+          console.error("Failed to fetch rules:", data.error);
+        }
+      } catch (error) {
+        console.error("Error fetching rules:", error);
+      }
+    };
+    
+    fetchRules();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -105,8 +126,8 @@ export default function CustomRules() {
             {rules.length === 0 ? (
               <p>No rules added yet.</p>
             ) : (
-              rules.map((rule, index) => (
-                <div key={index} className="border-b py-2">
+              rules.map((rule: Rule, index) => (
+                <div key={rule._id} className="border-b py-2">
                   <p className="font-bold">{rule.appliance}</p>
                   <p>Email: {rule.email}</p>
                   {rule.temperatureThreshold && (
@@ -115,6 +136,8 @@ export default function CustomRules() {
                   {rule.humidityThreshold && (
                     <p>Notify if humidity ≥ {rule.humidityThreshold}%</p>
                   )}
+                  <p>Status: {rule.notified ? "Notified" : "Not Notified"}</p>
+                  <p>Created At: {new Date(rule.createdAt).toLocaleString()}</p>
                 </div>
               ))
             )}

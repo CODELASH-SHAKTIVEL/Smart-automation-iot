@@ -34,7 +34,17 @@ app.get("/", (req, res) => {
 
 // setInterval(() => fetchAndSaveSensorData({ }, { status: () => ({ json: () => {} }) }), 2000);
 
- setInterval(() => checkSensorAndNotify({ }, { status: () => ({ json: () => {} }) }), 2000);
+//  setInterval(() => checkSensorAndNotify({ }, { status: () => ({ json: () => {} }) }), 2000);
+setInterval(() => {
+  fetchAndSaveSensorData({ }, { status: () => ({ json: () => {} }) });
+}, 2000);
+
+setTimeout(() => {
+  setInterval(() => {
+    checkSensorAndNotify({ }, { status: () => ({ json: () => {} }) });
+  }, 2000);
+}, 10000); // Adjust delay time as necessary
+
 
 // Start the server
 app.listen(process.env.PORT, async () => {
