@@ -1,4 +1,4 @@
-import SensorData from '../models/sensorData.js';
+import SensorData from '../models/SensorData.js';
 
 // Get all sensor data
 export const getAllSensorData = async (req, res) => {

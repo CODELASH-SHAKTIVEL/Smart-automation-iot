@@ -1,6 +1,6 @@
 import axios from 'axios';
 import fetch from 'node-fetch';
-import sensorData from '../models/sensorData.js';
+import SensorData from '../models/SensorData.js';
 
 export const fetchAndSaveSensorData = async (req, res) => {
   try {

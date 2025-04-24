@@ -1,7 +1,5 @@
-// sensorModel.js (ESM version)
-import mongoose from 'mongoose';
-
-const { Schema, model, models } = mongoose;
+// sensorModel.js
+import { Schema, model } from 'mongoose';
 
 const sensorSchema = new Schema({
   temperature: Number,
@@ -12,5 +10,4 @@ const sensorSchema = new Schema({
   }
 });
 
-// ✅ Prevent OverwriteModelError on hot reloads
-export default models.SensorReading || model('SensorReading', sensorSchema);
+export default model('SensorReading', sensorSchema);
