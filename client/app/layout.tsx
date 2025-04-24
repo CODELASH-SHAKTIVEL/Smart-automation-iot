@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "./context/ThemeContext";
 import ClientHydrationLogger from "@/components/ClientHydrationLogger";
-import ThemeToggle from "./components/ThemeToggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,13 +28,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-geist antialiased" cz-shortcut-listen="true">
-        <ThemeProvider>
-          <header className="p-4 flex justify-end">
-            <ThemeToggle />
-          </header>
           <ClientHydrationLogger />
           {children}
-        </ThemeProvider>
       </body>
     </html>
   );
