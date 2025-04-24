@@ -11,9 +11,6 @@ interface Rule {
   temperatureThreshold: string;
   humidityThreshold: string;
   email: string;
-  _id: string;
-  notified: boolean;
-  createdAt: string;
 }
 
 export default function CustomRules() {
@@ -23,9 +20,35 @@ export default function CustomRules() {
   const [email, setEmail] = useState('');
   const [rules, setRules] = useState<Rule[]>([]);
 
+  // Fetch rules from the backend when the component mounts
+  useEffect(() => {
+    const fetchRules = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/get-rules');
+        const result = await response.json();
+        if (response.ok) {
+          setRules(result);
+        } else {
+          alert(result.error || "Failed to fetch rules");
+        }
+      } catch (error) {
+        console.error("Error fetching rules:", error);
+        alert("Error fetching rules");
+      }
+    };
+
+    fetchRules();
+  }, []);
+
   const handleAddRule = async () => {
     if (appliance && email && (temperatureThreshold || humidityThreshold)) {
       const newRule = { appliance, temperatureThreshold, humidityThreshold, email };
+      
+      // Remove the old rule before adding a new one (if that's the desired behavior)
+      const updatedRules = [newRule];  // Replace old rule with the new one
+      
+      setRules(updatedRules);  // Update the UI immediately with the new rule
+
       try {
         const response = await fetch('http://localhost:5000/add-rule', {
           method: 'POST',
@@ -36,41 +59,23 @@ export default function CustomRules() {
         });
 
         const result = await response.json();
-        if (response.ok) {
-          setRules((prevRules) => [...prevRules, result]);  // Assuming the result contains the new rule
-          setAppliance('');
-          setTemperatureThreshold('');
-          setHumidityThreshold('');
-          setEmail('');
-        } else {
+        if (!response.ok) {
           alert(result.error || "Failed to add rule");
         }
       } catch (error) {
         console.error("Error adding rule:", error);
         alert("Error adding rule");
       }
+
+      // Clear the form after adding the rule
+      setAppliance('');
+      setTemperatureThreshold('');
+      setHumidityThreshold('');
+      setEmail('');
     } else {
       alert("Please fill appliance, email, and at least one threshold");
     }
   };
-
-  useEffect(() => {
-    const fetchRules = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/get-rules');
-        const data = await response.json();
-        if (response.ok) {
-          setRules(data); // No need for data.rules if the response is an array
-        } else {
-          console.error("Failed to fetch rules:", data.error);
-        }
-      } catch (error) {
-        console.error("Error fetching rules:", error);
-      }
-    };
-    
-    fetchRules();
-  }, []);
 
   return (
     <div className="space-y-6">
@@ -126,18 +131,16 @@ export default function CustomRules() {
             {rules.length === 0 ? (
               <p>No rules added yet.</p>
             ) : (
-              rules.map((rule: Rule, index) => (
-                <div key={rule._id} className="border-b py-2">
-                  <p className="font-bold">{rule.appliance}</p>
+              rules.map((rule, index) => (
+                <div key={index} className="border-b py-2">
+                  <p className="font-bold">Appliance: {rule.appliance}</p>
                   <p>Email: {rule.email}</p>
                   {rule.temperatureThreshold && (
-                    <p>Notify if temperature ≥ {rule.temperatureThreshold}°C</p>
+                    <p><strong>Temperature Threshold:</strong> ≥ {rule.temperatureThreshold}°C</p>
                   )}
                   {rule.humidityThreshold && (
-                    <p>Notify if humidity ≥ {rule.humidityThreshold}%</p>
+                    <p><strong>Humidity Threshold:</strong> ≥ {rule.humidityThreshold}%</p>
                   )}
-                  <p>Status: {rule.notified ? "Notified" : "Not Notified"}</p>
-                  <p>Created At: {new Date(rule.createdAt).toLocaleString()}</p>
                 </div>
               ))
             )}
