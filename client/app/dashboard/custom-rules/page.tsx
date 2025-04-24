@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,11 +20,37 @@ export default function CustomRules() {
   const [email, setEmail] = useState('');
   const [rules, setRules] = useState<Rule[]>([]);
 
+  // Fetch rules from the backend when the component mounts
+  useEffect(() => {
+    const fetchRules = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/get-rules');
+        const result = await response.json();
+        if (response.ok) {
+          setRules(result);
+        } else {
+          alert(result.error || "Failed to fetch rules");
+        }
+      } catch (error) {
+        console.error("Error fetching rules:", error);
+        alert("Error fetching rules");
+      }
+    };
+
+    fetchRules();
+  }, []);
+
   const handleAddRule = async () => {
     if (appliance && email && (temperatureThreshold || humidityThreshold)) {
       const newRule = { appliance, temperatureThreshold, humidityThreshold, email };
+      
+      // Remove the old rule before adding a new one (if that's the desired behavior)
+      const updatedRules = [newRule];  // Replace old rule with the new one
+      
+      setRules(updatedRules);  // Update the UI immediately with the new rule
+
       try {
-        const response = await fetch('http://localhost:5000/api/rules/add-rule', {
+        const response = await fetch('http://localhost:5000/add-rule', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -33,19 +59,19 @@ export default function CustomRules() {
         });
 
         const result = await response.json();
-        if (response.ok) {
-          setRules([...rules, newRule]);
-          setAppliance('');
-          setTemperatureThreshold('');
-          setHumidityThreshold('');
-          setEmail('');
-        } else {
+        if (!response.ok) {
           alert(result.error || "Failed to add rule");
         }
       } catch (error) {
         console.error("Error adding rule:", error);
         alert("Error adding rule");
       }
+
+      // Clear the form after adding the rule
+      setAppliance('');
+      setTemperatureThreshold('');
+      setHumidityThreshold('');
+      setEmail('');
     } else {
       alert("Please fill appliance, email, and at least one threshold");
     }
@@ -107,13 +133,13 @@ export default function CustomRules() {
             ) : (
               rules.map((rule, index) => (
                 <div key={index} className="border-b py-2">
-                  <p className="font-bold">{rule.appliance}</p>
+                  <p className="font-bold">Appliance: {rule.appliance}</p>
                   <p>Email: {rule.email}</p>
                   {rule.temperatureThreshold && (
-                    <p>Notify if temperature ≥ {rule.temperatureThreshold}°C</p>
+                    <p><strong>Temperature Threshold:</strong> ≥ {rule.temperatureThreshold}°C</p>
                   )}
                   {rule.humidityThreshold && (
-                    <p>Notify if humidity ≥ {rule.humidityThreshold}%</p>
+                    <p><strong>Humidity Threshold:</strong> ≥ {rule.humidityThreshold}%</p>
                   )}
                 </div>
               ))

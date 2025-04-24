@@ -13,6 +13,16 @@ const RuleSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  email: {
+    type: String,
+    required: true,
+    trim: true,
+    lowercase: true
+  },
+  notified: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now
