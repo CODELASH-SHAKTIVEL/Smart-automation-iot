@@ -1,7 +1,13 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { Thermometer, Droplets } from "lucide-react";
+import { useEffect, useState } from 'react';
+import {
+  Thermometer,
+  Droplets,
+  Sun,
+  Leaf,
+  Layers,
+} from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -10,163 +16,208 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend
-} from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+} from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-type SensorEntry = {
+/* ---------- Types ---------- */
+type ZoneSensorEntry = {
+  zone: string;
+  soilMoisture: number;
   temperature: number;
-  humidity: number;
+  lightIntensity: number;
   created_time: string;
 };
 
-const COLORS = ['#FF8042', '#0088FE'];
+/* ---------- Mock Data (Multi-Acre / Multi-Zone) ---------- */
+const mockZoneData: ZoneSensorEntry[] = [
+  {
+    zone: 'Zone A',
+    soilMoisture: 62,
+    temperature: 28,
+    lightIntensity: 720,
+    created_time: new Date().toISOString(),
+  },
+  {
+    zone: 'Zone B',
+    soilMoisture: 55,
+    temperature: 30,
+    lightIntensity: 680,
+    created_time: new Date().toISOString(),
+  },
+  {
+    zone: 'Zone C',
+    soilMoisture: 70,
+    temperature: 27,
+    lightIntensity: 750,
+    created_time: new Date().toISOString(),
+  },
+];
 
-export default function SensorStats() {
-  const [temperature, setTemperature] = useState<number | null>(null);
-  const [humidity, setHumidity] = useState<number | null>(null);
-  const [sensorHistory, setSensorHistory] = useState<SensorEntry[]>([]);
+/* ---------- Historical Mock Trend ---------- */
+const mockHistory = Array.from({ length: 10 }).map((_, i) => ({
+  created_time: new Date(Date.now() - i * 600000).toISOString(),
+  soilMoisture: 55 + Math.random() * 15,
+  temperature: 26 + Math.random() * 5,
+  lightIntensity: 650 + Math.random() * 150,
+}));
+
+export default function DashboardOverview() {
+  const [zones, setZones] = useState<ZoneSensorEntry[]>([]);
+  const [history, setHistory] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchSensorData = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/get-recent-sensor-data');
-        const data = await response.json();
-        const sensor = data[0];
-
-        setTemperature(sensor.temperature);
-        setHumidity(sensor.humidity);
-      } catch (err) {
-        console.error("Error fetching sensor data", err);
-      }
-    };
-
-    const fetchSensorHistory = async () => {
-      try {
-        const res = await fetch('http://localhost:5000/sensor-data');
-        const data: SensorEntry[] = await res.json();
-        setSensorHistory(data);
-      } catch (err) {
-        console.error("Error fetching sensor history", err);
-      }
-    };
-
-    fetchSensorData();
-    fetchSensorHistory();
+    // Mock API replacement (future-ready)
+    setZones(mockZoneData);
+    setHistory(mockHistory.reverse());
   }, []);
 
-  const pieData = [
-    { name: 'Temperature', value: temperature || 0 },
-    { name: 'Humidity', value: humidity || 0 }
-  ];
+  /* ---------- Aggregate Values ---------- */
+  const avgSoil =
+    zones.reduce((acc, z) => acc + z.soilMoisture, 0) / zones.length || 0;
+  const avgTemp =
+    zones.reduce((acc, z) => acc + z.temperature, 0) / zones.length || 0;
+  const avgLight =
+    zones.reduce((acc, z) => acc + z.lightIntensity, 0) / zones.length || 0;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Sensor Statistics</h1>
-
-      {/* Current Temperature and Humidity Cards */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="p-6">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <Thermometer className="h-8 w-8 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Temperature</p>
-              <h2 className="text-3xl font-bold">{temperature !== null ? `${temperature}°C` : 'Loading...'}</h2>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <Droplets className="h-8 w-8 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Humidity</p>
-              <h2 className="text-3xl font-bold">{humidity !== null ? `${humidity}%` : 'Loading...'}</h2>
-            </div>
-          </div>
-        </Card>
+    <div className="space-y-8">
+      {/* ---------- Title ---------- */}
+      <div>
+        <h1 className="text-3xl font-extrabold text-emerald-800 dark:text-emerald-400">
+          Greenhouse Dashboard
+        </h1>
+        <p className="text-sm text-emerald-600 dark:text-emerald-500">
+          Multi-zone smart greenhouse overview
+        </p>
       </div>
 
-      {/* Pie Chart */}
-      {/* <Card className="p-6">
-        <CardHeader>
-          <CardTitle>Proportion: Temperature vs Humidity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                fill="#8884d8"
-                label
-              >
-                {pieData.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card> */}
+      {/* ---------- Summary Cards ---------- */}
+      <div className="grid gap-6 md:grid-cols-4">
+        <SummaryCard
+          title="Active Zones"
+          value={zones.length}
+          icon={Layers}
+        />
+        <SummaryCard
+          title="Avg Soil Moisture"
+          value={`${avgSoil.toFixed(1)}%`}
+          icon={Droplets}
+        />
+        <SummaryCard
+          title="Avg Temperature"
+          value={`${avgTemp.toFixed(1)}°C`}
+          icon={Thermometer}
+        />
+        <SummaryCard
+          title="Avg Light Intensity"
+          value={`${avgLight.toFixed(0)} lux`}
+          icon={Sun}
+        />
+      </div>
 
-      {/* Line Chart 1 - Temperature & Humidity */}
-      <Card className="p-6">
+      {/* ---------- Zone Status ---------- */}
+      <Card>
         <CardHeader>
-          <CardTitle>Temperature & Humidity Over Time</CardTitle>
+          <CardTitle className="text-emerald-700 dark:text-emerald-400">
+            Zone-wise Soil, Water & Light Emitters
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={sensorHistory} margin={{ left: 12, right: 12 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="created_time"
-                tickFormatter={(value: string) => new Date(value).toLocaleTimeString()}
-                tick={{ fontSize: 12 }}
-              />
-              <YAxis />
-              <Tooltip labelFormatter={(value) => new Date(value).toLocaleTimeString()} />
-              <Line type="monotone" dataKey="temperature" stroke="#ff7300" strokeWidth={2} name="Temperature (°C)" />
-              <Line type="monotone" dataKey="humidity" stroke="#387908" strokeWidth={2} name="Humidity (%)" />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className="grid gap-4 md:grid-cols-3">
+            {zones.map((zone) => (
+              <div
+                key={zone.zone}
+                className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950"
+              >
+                <h3 className="mb-2 font-semibold text-emerald-800 dark:text-emerald-300">
+                  {zone.zone}
+                </h3>
+                <div className="space-y-1 text-sm text-emerald-700 dark:text-emerald-400">
+                  <p>🌱 Soil Moisture: {zone.soilMoisture}%</p>
+                  <p>🌡️ Temperature: {zone.temperature}°C</p>
+                  <p>🌞 Light Intensity: {zone.lightIntensity} lux</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
-      {/* Line Chart 2 - Temperature Only */}
-      <Card className="p-6">
+      {/* ---------- Trend Chart ---------- */}
+      <Card>
         <CardHeader>
-          <CardTitle>Temperature Only (Over Time)</CardTitle>
+          <CardTitle className="text-emerald-700 dark:text-emerald-400">
+            Environmental Trends (All Zones)
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={sensorHistory} margin={{ left: 12, right: 12 }}>
+          <ResponsiveContainer width="100%" height={320}>
+            <LineChart data={history}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey="created_time"
-                tickFormatter={(value: string) => new Date(value).toLocaleTimeString()}
-                tick={{ fontSize: 12 }}
+                tickFormatter={(v) => new Date(v).toLocaleTimeString()}
               />
               <YAxis />
-              <Tooltip labelFormatter={(value) => new Date(value).toLocaleTimeString()} />
-              <Line type="monotone" dataKey="temperature" stroke="#007bff" strokeWidth={2} name="Temperature (°C)" />
+              <Tooltip
+                labelFormatter={(v) =>
+                  new Date(v as string).toLocaleTimeString()
+                }
+              />
+              <Line
+                type="monotone"
+                dataKey="soilMoisture"
+                stroke="#10b981"
+                strokeWidth={2}
+                name="Soil Moisture (%)"
+              />
+              <Line
+                type="monotone"
+                dataKey="temperature"
+                stroke="#f97316"
+                strokeWidth={2}
+                name="Temperature (°C)"
+              />
+              <Line
+                type="monotone"
+                dataKey="lightIntensity"
+                stroke="#eab308"
+                strokeWidth={2}
+                name="Light Intensity (lux)"
+              />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+/* ---------- Reusable Summary Card ---------- */
+function SummaryCard({
+  title,
+  value,
+  icon: Icon,
+}: {
+  title: string;
+  value: string | number;
+  icon: any;
+}) {
+  return (
+    <Card className="p-4">
+      <div className="flex items-center gap-4">
+        <div className="rounded-xl bg-emerald-100 p-3 dark:bg-emerald-900">
+          <Icon className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+        </div>
+        <div>
+          <p className="text-sm text-emerald-600 dark:text-emerald-500">
+            {title}
+          </p>
+          <h2 className="text-2xl font-bold text-emerald-800 dark:text-white">
+            {value}
+          </h2>
+        </div>
+      </div>
+    </Card>
   );
 }

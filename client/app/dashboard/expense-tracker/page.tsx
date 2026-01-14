@@ -1,183 +1,201 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
 import {
-  ResponsiveContainer,
+  Sun,
+  Thermometer,
+  AlertTriangle,
+  Layers,
+  Lightbulb,
+} from 'lucide-react';
+import {
   LineChart,
   Line,
   XAxis,
   YAxis,
-  Tooltip,
   CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
 } from 'recharts';
+import { Card } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
-type SensorData = {
-  _id: string;
-  temperature: number;
-  humidity: number;
-  created_time: string;
-  __v: number;
-};
+/* ---------- Mock Multi-Zone Light & Temperature Data ---------- */
+const mockLightTempHistory = Array.from({ length: 12 }).map((_, i) => ({
+  time: new Date(Date.now() - i * 3600000).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+  }),
+  temperature: 24 + Math.random() * 8,
+  lightIntensity: 600 + Math.random() * 300,
+}));
 
-export default function ExpenseTracker() {
-  const [sensorData, setSensorData] = useState<SensorData[]>([]);
-  const [monthlyLimit, setMonthlyLimit] = useState(300);
-  const [rate, setRate] = useState(0.12);
-  const [dailyUsage, setDailyUsage] = useState(0);
-  const [hourlyChartData, setHourlyChartData] = useState<{ hour: string; kWh: number }[]>([]);
+const mockZones = [
+  { zone: 'Zone A', temp: 28, light: 820 },
+  { zone: 'Zone B', temp: 30, light: 760 },
+  { zone: 'Zone C', temp: 26, light: 880 },
+];
+
+export default function LightAndTemperature() {
+  const [history, setHistory] = useState<any[]>([]);
+  const [zones, setZones] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchSensorData = async () => {
-      try {
-        const res = await fetch('http://localhost:5000/sensor-data');
-        const data: SensorData[] = await res.json();
-        setSensorData(data);
-        const { dailyTotal, chartData } = calculateUsage(data);
-        setDailyUsage(dailyTotal);
-        setHourlyChartData(chartData);
-      } catch (err) {
-        console.error('Failed to fetch sensor data', err);
-      }
-    };
-
-    fetchSensorData();
+    setTimeout(() => {
+      setHistory(mockLightTempHistory.reverse());
+      setZones(mockZones);
+    }, 300);
   }, []);
 
-  const calculateUsage = (data: SensorData[]) => {
-    const sortedData = [...data].sort(
-      (a, b) => new Date(a.created_time).getTime() - new Date(b.created_time).getTime()
-    );
+  const avgTemp =
+    history.reduce((a, b) => a + (b.temperature || 0), 0) /
+      (history.length || 1);
 
-    const hourlyMap = new Map<string, { total: number; count: number }>();
+  const avgLight =
+    history.reduce((a, b) => a + (b.lightIntensity || 0), 0) /
+      (history.length || 1);
 
-    let totalKWh = 0;
-    const baseLoad = 0.5;
-
-    for (let i = 1; i < sortedData.length; i++) {
-      const prev = sortedData[i - 1];
-      const curr = sortedData[i];
-
-      const prevTime = new Date(prev.created_time).getTime();
-      const currTime = new Date(curr.created_time).getTime();
-
-      const timeDiffHrs = (currTime - prevTime) / (1000 * 60 * 60); // ms to hours
-
-      if (timeDiffHrs <= 0 || timeDiffHrs > 2) continue; // skip invalid gaps
-
-      const avgTemp = (prev.temperature + curr.temperature) / 2;
-      const avgHumidity = (prev.humidity + curr.humidity) / 2;
-
-      const tempFactor = Math.max(avgTemp - 24, 0) * 1.5;
-      const humFactor = Math.max(avgHumidity - 50, 0) * 0.5;
-
-      const usage = (tempFactor + humFactor) * baseLoad * timeDiffHrs;
-
-      if (!isNaN(usage)) {
-        totalKWh += usage;
-
-        const hourKey = new Date(curr.created_time).getHours().toString().padStart(2, '0') + ":00";
-        const current = hourlyMap.get(hourKey) || { total: 0, count: 0 };
-        hourlyMap.set(hourKey, {
-          total: current.total + usage,
-          count: current.count + 1,
-        });
-      }
-    }
-
-    const chartData = Array.from(hourlyMap.entries())
-      .map(([hour, { total, count }]) => ({
-        hour,
-        kWh: parseFloat((total / count).toFixed(2)),
-      }))
-      .sort((a, b) => a.hour.localeCompare(b.hour));
-
-    return { dailyTotal: parseFloat(totalKWh.toFixed(2)), chartData };
-  };
-
-  const projectedExpense = dailyUsage * rate * 30;
-  const remainingBudget = monthlyLimit - projectedExpense;
-  const usagePercentage = (projectedExpense / monthlyLimit) * 100;
+  const tempUsagePercent = Math.min((avgTemp / 35) * 100, 100);
+  const lightUsagePercent = Math.min((avgLight / 1000) * 100, 100);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Expense Tracker</h1>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="p-6 space-y-4">
-          <h2 className="text-xl font-semibold">Settings</h2>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="monthlyLimit">Monthly Expense Limit ($)</Label>
-              <Input
-                id="monthlyLimit"
-                type="number"
-                value={monthlyLimit}
-                onChange={(e) => setMonthlyLimit(Number(e.target.value))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="rate">Electricity Rate (per kWh)</Label>
-              <Input
-                id="rate"
-                type="number"
-                step="0.01"
-                value={rate}
-                onChange={(e) => setRate(Number(e.target.value))}
-              />
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6 space-y-4">
-          <h2 className="text-xl font-semibold">Usage Statistics</h2>
-          <div className="space-y-4">
-            <div>
-              <Label>Daily Usage</Label>
-              <p className="text-2xl font-bold">{dailyUsage} kWh</p>
-            </div>
-            <div>
-              <Label>Projected Monthly Expense</Label>
-              <p className="text-2xl font-bold">${projectedExpense.toFixed(2)}</p>
-            </div>
-            <div>
-              <Label>Remaining Budget</Label>
-              <p className="text-2xl font-bold">${remainingBudget.toFixed(2)}</p>
-            </div>
-            <div className="space-y-2">
-              <Label>Budget Usage</Label>
-              <Progress value={usagePercentage} />
-            </div>
-          </div>
-        </Card>
+    <div className="space-y-8 animate-fade-in">
+      {/* ---------- Header ---------- */}
+      <div>
+        <h1 className="text-3xl font-extrabold text-emerald-800 dark:text-emerald-400">
+          Light & Temperature Control
+        </h1>
+        <p className="text-sm text-emerald-600 dark:text-emerald-500">
+          Monitor greenhouse climate and lighting emitters across zones
+        </p>
       </div>
 
-      {usagePercentage >= 80 && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            Warning: Your projected usage exceeds 80% of your monthly budget!
-          </AlertDescription>
-        </Alert>
-      )}
+      {/* ---------- Summary Cards ---------- */}
+      <div className="grid gap-6 md:grid-cols-4">
+        <SummaryCard
+          title="Active Zones"
+          value="3"
+          icon={Layers}
+        />
+        <SummaryCard
+          title="Avg Temperature"
+          value={`${avgTemp.toFixed(1)}°C`}
+          icon={Thermometer}
+        />
+        <SummaryCard
+          title="Avg Light Intensity"
+          value={`${avgLight.toFixed(0)} lux`}
+          icon={Sun}
+        />
+        <SummaryCard
+          title="Lighting Load"
+          value={`${lightUsagePercent.toFixed(0)}%`}
+          icon={Lightbulb}
+        />
+      </div>
 
-      <Card className="p-6 space-y-4">
-        <h2 className="text-xl font-semibold">Hourly Usage Chart</h2>
+      {/* ---------- Temperature Trend ---------- */}
+      <Card className="p-6 transition hover:shadow-lg">
+        <h2 className="mb-4 text-xl font-semibold text-emerald-700 dark:text-emerald-400">
+          Temperature Trend (All Zones)
+        </h2>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={hourlyChartData}>
+          <LineChart data={history}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="hour" />
-            <YAxis unit=" kWh" />
+            <XAxis dataKey="time" />
+            <YAxis unit="°C" />
             <Tooltip />
-            <Line type="monotone" dataKey="kWh" stroke="#F25757" strokeWidth={2} />
+            <Line
+              type="monotone"
+              dataKey="temperature"
+              stroke="#f97316"
+              strokeWidth={3}
+              dot={false}
+            />
           </LineChart>
         </ResponsiveContainer>
       </Card>
+
+      {/* ---------- Light Intensity Trend ---------- */}
+      <Card className="p-6 transition hover:shadow-lg">
+        <h2 className="mb-4 text-xl font-semibold text-emerald-700 dark:text-emerald-400">
+          Light Intensity Trend
+        </h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={history}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="time" />
+            <YAxis unit=" lux" />
+            <Tooltip />
+            <Line
+              type="monotone"
+              dataKey="lightIntensity"
+              stroke="#eab308"
+              strokeWidth={3}
+              dot={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </Card>
+
+      {/* ---------- Zone Comparison ---------- */}
+      <Card className="p-6 transition hover:shadow-lg">
+        <h2 className="mb-4 text-xl font-semibold text-emerald-700 dark:text-emerald-400">
+          Zone-wise Light & Temperature
+        </h2>
+        <ResponsiveContainer width="100%" height={320}>
+          <BarChart data={zones}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="zone" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="temp" fill="#f97316" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="light" fill="#eab308" radius={[6, 6, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </Card>
+
+      {/* ---------- Alerts ---------- */}
+      {(avgTemp > 32 || avgLight > 900) && (
+        <Alert className="border-orange-300 bg-orange-50 dark:bg-orange-950">
+          <AlertTriangle className="h-4 w-4 text-orange-600" />
+          <AlertDescription className="text-orange-700 dark:text-orange-400">
+            Warning: High temperature or light intensity detected. Consider adjusting emitters.
+          </AlertDescription>
+        </Alert>
+      )}
     </div>
+  );
+}
+
+/* ---------- Summary Card ---------- */
+function SummaryCard({
+  title,
+  value,
+  icon: Icon,
+}: {
+  title: string;
+  value: string;
+  icon: any;
+}) {
+  return (
+    <Card className="p-4 transition hover:scale-[1.02] hover:shadow-md">
+      <div className="flex items-center gap-4">
+        <div className="rounded-xl bg-emerald-100 p-3 dark:bg-emerald-900">
+          <Icon className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+        </div>
+        <div>
+          <p className="text-sm text-emerald-600 dark:text-emerald-500">
+            {title}
+          </p>
+          <h2 className="text-2xl font-bold text-emerald-800 dark:text-white">
+            {value}
+          </h2>
+        </div>
+      </div>
+    </Card>
   );
 }
