@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
-import { motion } from 'motion/react'
+import { motion } from "framer-motion";
+
 
 export const Logo = ({ className }: { className?: string }) => {
     return (
